@@ -1,0 +1,59 @@
+from quixote.directory import Directory, export
+
+
+_FILLER_TEXT = '''\
+Lorem ipsum dolor sit amet, consecteteur adipiscing elit nisi
+ultricies.  Condimentum vel, at augue nibh sed. Diam praesent
+metus ut eros, sem penatibus.  Pellentesque. Fusce odio
+posuere litora non integer habitant proin. Metus accumsan nibh
+facilisis nostra lobortis cum diam tellus. Malesuada nostra a
+volutpat pede primis congue nisl feugiat in fermentum. Orci
+in hymenaeos. Eni tempus mi mollis lacinia orci interdum
+lacus. Sollicitudin aliquet, etiam. Ac.  Mi, nullam ligula,
+tristique penatibus nisi eros nisl pede pharetra congue,
+aptent nulla, rhoncus tellus morbi, ornare. Magna condimentum
+erat turpis.  Fusce arcu ve suscipit nisi phasellus rutrum a
+dictumst leo, laoreet dui, ultricies platea. Porta venenatis
+fringilla vestibulum arcu etiam condimentum non.
+'''
+
+
+def render_page [html] (content):
+    '''<!DOCTYPE html>
+    <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+    <head>
+        <title>Hello World</title>
+    </head>
+    <body>
+    %s
+    </body>
+    </html>
+    ''' % content
+
+
+def render_results [html] (results):
+    '<p>%s</p>' % _FILLER_TEXT
+    '<table border="1">'
+    for id, data in results:
+        '<tr><td>%s</td><td>%s</td></tr>' % (id, data)
+    '</table>'
+
+
+class RootDirectory(Directory):
+    def __init__(self, db):
+        self._db = db
+
+    @export(name='')
+    def index(self):
+        return 'Hello World!'
+
+    @export()
+    def template(self):
+        return render_page('Hello World!')
+
+    @export()
+    def db_template(self):
+        rows = self._db.execute('select id, data from hello order by id asc')
+        results = [(row[0], row[1]) for row in rows.fetchall()]
+        results.sort()
+        return render_page(render_results(results))
